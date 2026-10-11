@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { SlidersHorizontal, X, ArrowUpDown, Search } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 import { ProductCard } from './ProductCard';
@@ -157,7 +157,7 @@ export const ProductGrid: React.FC<{ onOpenMobileFilters: () => void }> = ({ onO
           {filters.category === 'all' && !filters.searchQuery ? (
             <>
               {/* Clothing Section */}
-              <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-x-6 gap-y-10">
+              <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-x-3 sm:gap-x-6 gap-y-6 sm:gap-y-10">
                 {filteredProducts
                   .filter(p => !['shoes', 'accessories'].includes(p.category))
                   .map((product, idx) => (
@@ -167,12 +167,12 @@ export const ProductGrid: React.FC<{ onOpenMobileFilters: () => void }> = ({ onO
 
               {/* Accessories & Footwear Section */}
               {filteredProducts.some(p => ['shoes', 'accessories'].includes(p.category)) && (
-                <div className="mt-20 pt-12 border-t border-stone-200">
-                  <div className="text-center mb-10">
-                    <h3 className="font-serif text-2xl text-noir-950 font-normal">Accessories & Footwear</h3>
-                    <p className="text-sm text-stone-500 font-medium mt-1">The finishing touches to elevate any silhouette.</p>
+                <div className="mt-12 sm:mt-20 pt-8 sm:pt-12 border-t border-stone-200">
+                  <div className="text-center mb-6 sm:mb-10 px-2">
+                    <h3 className="font-serif text-xl sm:text-2xl text-noir-950 font-normal">Accessories & Footwear</h3>
+                    <p className="text-xs sm:text-sm text-stone-500 font-medium mt-1">The finishing touches to elevate any silhouette.</p>
                   </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-x-6 gap-y-10">
+                  <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-x-3 sm:gap-x-6 gap-y-6 sm:gap-y-10">
                     {filteredProducts
                       .filter(p => ['shoes', 'accessories'].includes(p.category))
                       .map((product, idx) => (
@@ -183,7 +183,7 @@ export const ProductGrid: React.FC<{ onOpenMobileFilters: () => void }> = ({ onO
               )}
             </>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-x-6 gap-y-10">
+            <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-x-3 sm:gap-x-6 gap-y-6 sm:gap-y-10">
               {filteredProducts.map((product, idx) => (
                 <ProductCard key={product.id} product={product} index={idx} />
               ))}

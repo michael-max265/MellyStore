@@ -111,7 +111,7 @@ export const CategoryHighlights: React.FC = () => {
                 reveal reveal-scale
                 reveal-delay-${Math.min(i + 1, 6)}
                 group relative overflow-hidden cursor-pointer
-                bg-stone-200 h-[380px] sm:h-[420px]
+                bg-stone-200 h-[300px] sm:h-[420px]
                 rounded-xl shadow-sm
                 hover-lift
                 ${card.spanCol}
@@ -128,7 +128,7 @@ export const CategoryHighlights: React.FC = () => {
               <div
                 className="absolute inset-0 transition-opacity duration-500"
                 style={{
-                  background: 'linear-gradient(to top, rgba(0,0,0,0.80) 0%, rgba(0,0,0,0.18) 55%, transparent 100%)',
+                  background: 'linear-gradient(to top, rgba(0,0,0,0.80) 0%, rgba(0,0,0,0.22) 55%, transparent 100%)',
                 }}
               />
 
@@ -140,36 +140,36 @@ export const CategoryHighlights: React.FC = () => {
                 }}
               />
 
-              {/* Category label top-left — slides in on mount */}
-              <div className="absolute top-4 left-5 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
-                <span className="text-[10px] uppercase tracking-wider text-champagne-300 font-semibold bg-black/40 backdrop-blur-sm px-2.5 py-1 rounded-full">
+              {/* Category label top-left */}
+              <div className="absolute top-3.5 left-4 sm:left-5 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-300">
+                <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-champagne-300 font-semibold bg-black/50 backdrop-blur-sm px-2.5 py-1 rounded-full border border-white/10">
                   {card.subtitle}
                 </span>
               </div>
 
-              {/* Text content bottom — slides up on hover */}
-              <div className="absolute bottom-0 inset-x-0 p-6 text-white flex items-end justify-between">
-                <div className="transform translate-y-1 group-hover:translate-y-0 transition-transform duration-400 ease-out">
-                  <h3 className="font-serif text-xl sm:text-2xl font-medium tracking-normal leading-snug">
+              {/* Text content bottom */}
+              <div className="absolute bottom-0 inset-x-0 p-4 sm:p-6 text-white flex items-end justify-between">
+                <div className="transform translate-y-0 sm:translate-y-1 sm:group-hover:translate-y-0 transition-transform duration-400 ease-out">
+                  <h3 className="font-serif text-lg sm:text-2xl font-medium tracking-normal leading-snug">
                     {card.title}
                   </h3>
-                  <p className="text-xs uppercase tracking-wider text-champagne-200 font-semibold mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-75">
+                  <p className="text-[11px] sm:text-xs uppercase tracking-wider text-champagne-200 font-semibold mt-0.5 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-500 delay-75">
                     Shop the edit →
                   </p>
                 </div>
 
                 {/* Animated arrow button */}
                 <div className="
-                  w-10 h-10 rounded-full
-                  bg-white/15 backdrop-blur-md
+                  w-8 h-8 sm:w-10 sm:h-10 rounded-full
+                  bg-white/20 sm:bg-white/15 backdrop-blur-md
                   flex items-center justify-center text-white
                   border border-white/25
                   group-hover:bg-white group-hover:text-noir-950
                   transition-all duration-300
                   transform group-hover:scale-110 group-hover:rotate-12
-                  shadow-lg
+                  shadow-lg shrink-0
                 ">
-                  <ArrowUpRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  <ArrowUpRight className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </div>
               </div>
 

@@ -32,7 +32,7 @@ export const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="bg-noir-950 text-white/80 pt-16 pb-12 border-t border-noir-800">
+    <footer className="bg-noir-950 text-white/80 pt-16 pb-24 lg:pb-12 border-t border-noir-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Top Newsletter & VIP Section */}

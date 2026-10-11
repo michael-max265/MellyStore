@@ -168,12 +168,12 @@ export const Navbar: React.FC<{ onToggleFilters?: () => void }> = ({ onToggleFil
           </div>
 
           {/* Center: Brand Logo */}
-          <div className="flex-1 text-center lg:flex-initial">
+          <div className="flex-1 text-center lg:flex-initial min-w-0 px-1">
             <a href="#" className="inline-block group text-center focus:outline-none">
-              <span className="block font-serif text-2xl sm:text-3xl tracking-[0.16em] font-bold text-noir-950 uppercase group-hover:text-melly-700 transition-colors">
+              <span className="block font-serif text-xl sm:text-3xl tracking-[0.12em] sm:tracking-[0.16em] font-bold text-noir-950 uppercase group-hover:text-melly-700 transition-colors truncate">
                 MELLY<span className="text-melly-600 font-medium">STORE</span>
               </span>
-              <span className="block text-[10px] sm:text-[11px] uppercase tracking-[0.25em] text-stone-500 font-medium -mt-0.5">
+              <span className="block text-[9px] sm:text-[11px] uppercase tracking-[0.2em] sm:tracking-[0.25em] text-stone-500 font-medium -mt-0.5">
                 LUXURY WOMENSWEAR
               </span>
             </a>
@@ -220,7 +220,7 @@ export const Navbar: React.FC<{ onToggleFilters?: () => void }> = ({ onToggleFil
               {/* Hover Dropdown Menu */}
               {isUserMenuOpen && (
                 <div 
-                  className="absolute right-0 top-full mt-2 w-72 sm:w-80 bg-white rounded-2xl shadow-2xl border border-stone-200/90 py-3.5 px-4 z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+                  className="absolute right-0 top-full mt-2 w-72 sm:w-80 max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl border border-stone-200/90 py-3.5 px-4 z-50 animate-in fade-in slide-in-from-top-2 duration-200"
                   onMouseEnter={handleUserMouseEnter}
                   onMouseLeave={handleUserMouseLeave}
                 >
@@ -399,6 +399,37 @@ export const Navbar: React.FC<{ onToggleFilters?: () => void }> = ({ onToggleFil
           </div>
 
         </div>
+
+        {/* ── Mobile Search Bar (Interactive) ── */}
+        {isSearchOpen && (
+          <div className="lg:hidden pb-3 pt-1 animate-fade-in">
+            <div className="flex items-center bg-white border border-stone-300 rounded-xl px-3 py-2 shadow-sm w-full">
+              <Search className="w-4 h-4 text-stone-400 mr-2 shrink-0" />
+              <input
+                type="text"
+                value={filters.searchQuery}
+                onChange={(e) => setFilters(prev => ({ ...prev, searchQuery: e.target.value }))}
+                placeholder="Search silks, cashmeres, blazers..."
+                autoFocus
+                className="w-full text-xs bg-transparent focus:outline-none text-noir-900 placeholder:text-stone-400"
+              />
+              {filters.searchQuery && (
+                <button
+                  onClick={() => setFilters(prev => ({ ...prev, searchQuery: '' }))}
+                  className="text-stone-400 hover:text-noir-800 mr-1.5"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+              <button
+                onClick={() => setIsSearchOpen(false)}
+                className="text-[11px] font-semibold text-melly-700 uppercase tracking-wider pl-2 border-l border-stone-200 shrink-0"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* ── Desktop Secondary Bar: All categories + utility links ── */}
         <div className="hidden lg:flex items-center justify-center gap-6 py-2 border-t border-stone-200 text-[11px] uppercase tracking-widest font-medium text-stone-600">

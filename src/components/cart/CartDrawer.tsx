@@ -66,14 +66,14 @@ export const CartDrawer: React.FC = () => {
         onClick={() => setIsCartOpen(false)}
       />
 
-      <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
+      <div className="fixed inset-y-0 right-0 max-w-full flex pl-0 sm:pl-10">
         <div className="w-screen max-w-md bg-[#FAF8F5] shadow-2xl flex flex-col border-l border-stone-200 animate-drawer-slide">
           
           {/* Header */}
-          <div className="p-6 border-b border-stone-200 flex items-center justify-between bg-white">
+          <div className="p-4 sm:p-6 border-b border-stone-200 flex items-center justify-between bg-white">
             <div className="flex items-center space-x-2">
               <ShoppingBag className="w-5 h-5 text-noir-900" />
-              <h2 className="font-serif text-lg text-noir-950 font-normal">
+              <h2 className="font-serif text-base sm:text-lg text-noir-950 font-normal">
                 Your Shopping Bag ({cart.reduce((s, i) => s + i.quantity, 0)})
               </h2>
             </div>
@@ -199,7 +199,7 @@ export const CartDrawer: React.FC = () => {
 
           {/* Footer / Checkout Actions */}
           {cart.length > 0 && (
-            <div className="p-6 bg-white border-t border-stone-200 space-y-4">
+            <div className="p-4 sm:p-6 bg-white border-t border-stone-200 space-y-3 sm:space-y-4">
               
               {/* Promo Code Form */}
               <div>

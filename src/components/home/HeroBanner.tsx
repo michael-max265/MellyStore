@@ -69,7 +69,7 @@ export const HeroBanner: React.FC = () => {
             {/* Main Headline */}
             <div className="space-y-4">
               <h1
-                className="reveal animate-slide-up font-serif text-4xl sm:text-5xl lg:text-6xl text-noir-950 font-normal leading-[1.12] tracking-tight"
+                className="reveal animate-slide-up font-serif text-3xl sm:text-5xl lg:text-6xl text-noir-950 font-normal leading-[1.14] tracking-tight"
                 style={{ animationDelay: '0.18s' }}
               >
                 Quiet luxury,{' '}
@@ -80,7 +80,7 @@ export const HeroBanner: React.FC = () => {
               </h1>
 
               <p
-                className="reveal animate-fade-in text-stone-700 text-sm sm:text-base leading-relaxed max-w-xl mx-auto lg:mx-0 font-normal"
+                className="reveal animate-fade-in text-stone-700 text-xs sm:text-base leading-relaxed max-w-xl mx-auto lg:mx-0 font-normal"
                 style={{ animationDelay: '0.3s' }}
               >
                 MellyStore curates heirloom-grade silhouettes crafted from certified
@@ -91,12 +91,12 @@ export const HeroBanner: React.FC = () => {
 
             {/* CTAs */}
             <div
-              className="reveal flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2"
+              className="reveal flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 sm:gap-4 pt-2"
               style={{ animationDelay: '0.4s' }}
             >
               <button
                 onClick={handleExplore}
-                className="w-full sm:w-auto px-8 py-4 bg-noir-950 hover:bg-melly-900 text-white text-xs uppercase tracking-luxury font-medium transition-all shadow-luxury hover:shadow-luxury-hover flex items-center justify-center space-x-3 group hover:scale-[1.02] active:scale-95"
+                className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 bg-noir-950 hover:bg-melly-900 text-white text-xs uppercase tracking-luxury font-medium transition-all shadow-luxury hover:shadow-luxury-hover flex items-center justify-center space-x-3 group hover:scale-[1.02] active:scale-95"
                 style={{ transition: 'background-color 0.25s ease, transform 0.25s ease' }}
               >
                 <span>Shop New Arrivals</span>
@@ -105,7 +105,7 @@ export const HeroBanner: React.FC = () => {
 
               <a
                 href="#lookbook"
-                className="w-full sm:w-auto px-8 py-4 border border-stone-300 hover:border-noir-900 text-noir-900 hover:text-noir-950 text-xs uppercase tracking-luxury font-medium transition-all text-center hover:scale-[1.02] active:scale-95 bg-white/70"
+                className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 border border-stone-300 hover:border-noir-900 text-noir-900 hover:text-noir-950 text-xs uppercase tracking-luxury font-medium transition-all text-center hover:scale-[1.02] active:scale-95 bg-white/70"
                 style={{ transition: 'all 0.25s ease' }}
               >
                 Editorial Lookbook
@@ -114,13 +114,13 @@ export const HeroBanner: React.FC = () => {
 
             {/* Hallmarks */}
             <div
-              className="reveal grid grid-cols-3 gap-4 pt-6 border-t border-stone-200/80 text-center lg:text-left"
+              className="reveal grid grid-cols-3 gap-2 sm:gap-4 pt-5 sm:pt-6 border-t border-stone-200/80 text-center lg:text-left"
               style={{ animationDelay: '0.5s' }}
             >
               {[
                 { value: '100%', label: 'Grade 6A Silks' },
                 { value: 'Limited', label: 'Studio Runs' },
-                { value: 'Complimentary', label: 'White-Glove Courier' },
+                { value: 'Express', label: 'White-Glove Courier' },
               ].map((stat, i) => (
                 <div
                   key={stat.label}
@@ -128,11 +128,11 @@ export const HeroBanner: React.FC = () => {
                   style={{ animationDelay: `${0.55 + i * 0.1}s` }}
                 >
                   <p
-                    className="font-serif text-xl sm:text-2xl text-noir-900 font-medium transition-colors"
+                    className="font-serif text-lg sm:text-2xl text-noir-900 font-medium transition-colors"
                   >
                     {stat.value}
                   </p>
-                  <p className="text-[10px] sm:text-[11px] uppercase tracking-wider text-stone-500 mt-0.5">
+                  <p className="text-[9px] sm:text-[11px] uppercase tracking-wider text-stone-500 mt-0.5 leading-tight">
                     {stat.label}
                   </p>
                 </div>
@@ -147,7 +147,7 @@ export const HeroBanner: React.FC = () => {
 
               {/* Main Portrait Frame */}
               <div
-                className="reveal animate-slide-in-right relative rounded-2xl overflow-hidden shadow-2xl aspect-[3/4] max-h-[580px] w-full border-4 border-white"
+                className="reveal animate-slide-in-right relative rounded-2xl overflow-hidden shadow-2xl aspect-[3/4] max-h-[460px] sm:max-h-[580px] w-full border-4 border-white"
                 style={{ animationDelay: '0.25s' }}
               >
                 <img
@@ -197,11 +197,11 @@ export const HeroBanner: React.FC = () => {
         </div>
 
         {/* Editorial Press Bar — Grounding the brand as a real luxury house */}
-        <div className="mt-16 pt-8 border-t border-stone-200">
-          <p className="text-xs uppercase tracking-wider text-center text-stone-600 font-semibold mb-4">
+        <div className="mt-12 sm:mt-16 pt-6 sm:pt-8 border-t border-stone-200">
+          <p className="text-[11px] sm:text-xs uppercase tracking-wider text-center text-stone-600 font-semibold mb-3 sm:mb-4">
             Featured In Renowned Fashion & Culture Editorials
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-12 text-xs sm:text-sm font-serif tracking-[0.14em] text-stone-700 uppercase font-medium">
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-12 text-[11px] sm:text-sm font-serif tracking-[0.12em] sm:tracking-[0.14em] text-stone-700 uppercase font-medium">
             {pressNames.map((name, i) => (
               <span key={i} className="hover:text-noir-950 transition-colors cursor-default">
                 {name}

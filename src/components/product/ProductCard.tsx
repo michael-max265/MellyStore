@@ -155,8 +155,27 @@ export const ProductCard: React.FC<{ product: Product; index?: number }> = ({
           />
         </button>
 
-        {/* Bottom Hover Actions */}
-        <div className="absolute bottom-0 inset-x-0 p-3 z-10 transition-all duration-300 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100">
+        {/* Mobile Quick Add Button (Visible on Touch/Mobile) */}
+        {product.inStock && !showQuickSizes && (
+          <button
+            onClick={handleBagClick}
+            className={`sm:hidden absolute bottom-2.5 right-2.5 p-2 rounded-full shadow-md z-10 transition-transform active:scale-90 ${
+              justAdded
+                ? 'bg-emerald-600 text-white'
+                : 'bg-white/95 text-noir-950 backdrop-blur-sm'
+            }`}
+            aria-label="Add to bag"
+          >
+            {justAdded ? <Check className="w-3.5 h-3.5" /> : <ShoppingBag className="w-3.5 h-3.5" />}
+          </button>
+        )}
+
+        {/* Bottom Hover Actions (Desktop) & Mobile Quick Sizes */}
+        <div className={`absolute bottom-0 inset-x-0 p-2 sm:p-3 z-10 transition-all duration-300 ${
+          showQuickSizes 
+            ? 'opacity-100 translate-y-0' 
+            : 'transform translate-y-2 opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100'
+        }`}>
           {showQuickSizes ? (
             <div className="bg-white/95 backdrop-blur-md p-2 rounded-lg shadow-lg border border-stone-200 animate-elastic-in">
               <p className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-1 text-center">
@@ -176,7 +195,7 @@ export const ProductCard: React.FC<{ product: Product; index?: number }> = ({
               </div>
             </div>
           ) : (
-            <div className="flex gap-2">
+            <div className="hidden sm:flex gap-2">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -216,40 +235,38 @@ export const ProductCard: React.FC<{ product: Product; index?: number }> = ({
       </div>
 
       {/* Product Details Underneath */}
-      <div className="pt-3.5 pb-2 flex flex-col flex-1">
-
-
+      <div className="pt-2.5 sm:pt-3.5 pb-2 flex flex-col flex-1">
 
         {/* Title */}
         <h3
           onClick={() => setSelectedProduct(product)}
-          className="font-serif text-sm sm:text-base font-semibold text-noir-950 hover:text-melly-700 cursor-pointer transition-colors duration-200 line-clamp-1 group/title"
+          className="font-serif text-xs sm:text-base font-semibold text-noir-950 hover:text-melly-700 cursor-pointer transition-colors duration-200 line-clamp-1 group/title"
         >
           {product.name}
         </h3>
 
         {/* Subtitle */}
-        <p className="text-xs text-stone-600 font-normal line-clamp-1 mt-0.5">
+        <p className="text-[11px] sm:text-xs text-stone-600 font-normal line-clamp-1 mt-0.5">
           {product.subtitle}
         </p>
 
         {/* Price & Rating Row */}
-        <div className="flex items-center justify-between mt-2 pt-1 border-t border-stone-200/50">
-          <div className="flex items-baseline space-x-2">
-            <span className="text-sm sm:text-base font-bold text-noir-950 transition-all group-hover:text-melly-800">
+        <div className="flex flex-col min-[420px]:flex-row min-[420px]:items-center justify-between mt-2 pt-1 border-t border-stone-200/50 gap-0.5">
+          <div className="flex items-baseline space-x-1.5 flex-wrap">
+            <span className="text-xs sm:text-base font-bold text-noir-950 transition-all group-hover:text-melly-800">
               {formatPrice(product.price)}
             </span>
             {product.originalPrice && (
-              <span className="text-xs text-stone-500 line-through font-normal">
+              <span className="text-[10px] sm:text-xs text-stone-500 line-through font-normal">
                 {formatPrice(product.originalPrice)}
               </span>
             )}
           </div>
 
           <div className="flex items-center space-x-1 text-stone-600">
-            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 stroke-[1.5]" />
-            <span className="text-xs font-semibold text-noir-950">{product.rating}</span>
-            <span className="text-xs text-stone-600 font-medium">({product.reviewCount})</span>
+            <Star className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-amber-400 text-amber-400 stroke-[1.5]" />
+            <span className="text-[11px] sm:text-xs font-semibold text-noir-950">{product.rating}</span>
+            <span className="text-[10px] sm:text-xs text-stone-600 font-medium">({product.reviewCount})</span>
           </div>
         </div>
 

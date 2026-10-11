@@ -72,13 +72,13 @@ export const LookbookSection: React.FC = () => {
           </div>
 
           {/* Lookbook Switcher Tabs */}
-          <div className="flex items-center justify-center gap-2 mt-6 flex-wrap">
+          <div className="flex items-center justify-center gap-1.5 sm:gap-2 mt-4 sm:mt-6 flex-wrap px-1">
             {LOOKBOOK_ITEMS.map((look, idx) => (
               <button
                 key={look.id}
                 onClick={() => switchLook(idx)}
                 className={`
-                  relative text-xs uppercase tracking-luxury px-5 py-2 rounded-full
+                  relative text-[10px] sm:text-xs uppercase tracking-luxury px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-full
                   transition-all duration-300
                   ${activeLookIndex === idx
                     ? 'bg-noir-950 text-white shadow-md scale-105'
@@ -96,10 +96,10 @@ export const LookbookSection: React.FC = () => {
         </div>
 
         {/* Content Showcase */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-10 items-center">
 
           {/* Main Large Editorial Image */}
-          <div className="reveal-left lg:col-span-7 relative rounded-2xl overflow-hidden shadow-luxury aspect-[4/5] max-h-[600px] border border-stone-200 group">
+          <div className="reveal-left lg:col-span-7 relative rounded-2xl overflow-hidden shadow-luxury aspect-[4/5] max-h-[500px] sm:max-h-[600px] border border-stone-200 group">
 
             {/* Crossfade image */}
             <img
@@ -119,14 +119,14 @@ export const LookbookSection: React.FC = () => {
             {/* Navigation arrows */}
             <button
               onClick={prevLook}
-              className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white hover:text-noir-950 hover:scale-110 z-10"
+              className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/30 sm:bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-300 hover:bg-white hover:text-noir-950 hover:scale-110 z-10"
               aria-label="Previous look"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
             <button
               onClick={nextLook}
-              className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-white hover:text-noir-950 hover:scale-110 z-10"
+              className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/30 sm:bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-300 hover:bg-white hover:text-noir-950 hover:scale-110 z-10"
               aria-label="Next look"
             >
               <ChevronRight className="w-5 h-5" />

@@ -356,18 +356,18 @@ export const CheckoutModal: React.FC = () => {
       <div className="relative w-full max-w-4xl bg-[#FAF8F5] rounded-3xl shadow-2xl overflow-hidden z-10 border border-stone-200 max-h-[94vh] flex flex-col">
         
         {/* Top Header */}
-        <div className="p-5 sm:p-6 bg-white border-b border-stone-200 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <span className="font-serif text-xl sm:text-2xl text-noir-950 font-normal tracking-wide">
+        <div className="p-4 sm:p-6 bg-white border-b border-stone-200 flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-3">
+            <span className="font-serif text-lg sm:text-2xl text-noir-950 font-normal tracking-wide">
               MELLY<span className="text-melly-600 font-light">STORE</span>
             </span>
-            <span className="text-stone-300">|</span>
-            <span className="text-xs uppercase tracking-luxury text-stone-500 font-medium">
+            <span className="hidden sm:inline text-stone-300">|</span>
+            <span className="text-[10px] sm:text-xs uppercase tracking-luxury text-stone-500 font-medium">
               {step === 'confirmation' 
                 ? 'Order Confirmed' 
                 : step === 'account' 
-                ? 'Step 1: VIP Client Account (Required)' 
-                : 'Step 2: Make Payment'}
+                ? 'VIP Client Account' 
+                : 'Make Payment'}
             </span>
           </div>
 
@@ -382,7 +382,7 @@ export const CheckoutModal: React.FC = () => {
         </div>
 
         {/* Body Content */}
-        <div className="overflow-y-auto p-6 sm:p-8 flex-1">
+        <div className="overflow-y-auto p-4 sm:p-8 flex-1">
           {step === 'confirmation' && confirmedOrder ? (
             
             /* ─────────────────────────────────────────────────────────────

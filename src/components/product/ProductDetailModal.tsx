@@ -126,7 +126,7 @@ const ProductDetailContent: React.FC<ProductDetailContentProps> = ({ product, on
           <X className="w-5 h-5" />
         </button>
 
-        <div className="overflow-y-auto p-6 sm:p-8 lg:p-10 flex-1">
+        <div className="overflow-y-auto p-4 sm:p-8 lg:p-10 flex-1">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
             
             {/* Left: Gallery Column */}
@@ -262,30 +262,49 @@ const ProductDetailContent: React.FC<ProductDetailContentProps> = ({ product, on
                 </div>
 
                 {/* Quantity & CTA Row */}
-                <div className="mt-8 flex items-center gap-3">
+                <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                   
-                  {/* Quantity selector */}
-                  <div className="flex items-center border border-stone-300 rounded-md bg-white">
+                  <div className="flex items-center justify-between sm:justify-start gap-3">
+                    {/* Quantity selector */}
+                    <div className="flex items-center border border-stone-300 rounded-md bg-white">
+                      <button
+                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                        className="px-3 py-2.5 sm:py-3 text-sm text-stone-600 hover:text-noir-950"
+                      >
+                        -
+                      </button>
+                      <span className="px-3 text-xs font-semibold text-noir-900">{quantity}</span>
+                      <button
+                        onClick={() => setQuantity(quantity + 1)}
+                        className="px-3 py-2.5 sm:py-3 text-sm text-stone-600 hover:text-noir-950"
+                      >
+                        +
+                      </button>
+                    </div>
+
+                    {/* Wishlist Heart on Mobile (inline with quantity) */}
                     <button
-                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="px-3 py-3 text-sm text-stone-600 hover:text-noir-950"
+                      onClick={handleWishlistToggle}
+                      className={`sm:hidden p-2.5 rounded-md border border-stone-300 hover:border-rose-400 bg-white text-noir-800 transition-all hover:scale-110 active:scale-90 ${
+                        heartAnimating ? 'animate-heart-pop' : ''
+                      }`}
+                      aria-label="Wishlist toggle"
                     >
-                      -
-                    </button>
-                    <span className="px-3 text-xs font-semibold text-noir-900">{quantity}</span>
-                    <button
-                      onClick={() => setQuantity(quantity + 1)}
-                      className="px-3 py-3 text-sm text-stone-600 hover:text-noir-950"
-                    >
-                      +
+                      <Heart
+                        className={`w-5 h-5 transition-all duration-300 ${
+                          inWishlist
+                            ? 'fill-rose-600 text-rose-600 drop-shadow-[0_0_8px_rgba(225,29,72,0.6)]'
+                            : ''
+                        }`}
+                      />
                     </button>
                   </div>
 
-                  {/* Add to Bag Button — spring bounce on click */}
+                  {/* Add to Bag Button — full width on mobile */}
                   {selectedProduct.inStock ? (
                     <button
                       onClick={handleAddToCart}
-                      className={`flex-1 py-3.5 px-6 text-white text-xs uppercase tracking-luxury font-medium rounded shadow-luxury hover:shadow-luxury-hover flex items-center justify-center space-x-2 transition-all active:scale-95 hover:scale-[1.02] cursor-pointer ${
+                      className={`flex-1 py-3.5 px-4 sm:px-6 text-white text-xs uppercase tracking-luxury font-medium rounded shadow-luxury hover:shadow-luxury-hover flex items-center justify-center space-x-2 transition-all active:scale-95 hover:scale-[1.02] cursor-pointer ${
                         bagJustAdded
                           ? 'bg-emerald-700 animate-cart-badge'
                           : `bg-noir-950 hover:bg-melly-900 ${bagAnimating ? 'animate-cart-badge' : ''}`
@@ -304,10 +323,10 @@ const ProductDetailContent: React.FC<ProductDetailContentProps> = ({ product, on
                     </div>
                   )}
 
-                  {/* Wishlist Heart — animated pop */}
+                  {/* Wishlist Heart — desktop only */}
                   <button
                     onClick={handleWishlistToggle}
-                    className={`p-3.5 rounded-md border border-stone-300 hover:border-rose-400 bg-white text-noir-800 transition-all hover:scale-110 active:scale-90 ${
+                    className={`hidden sm:block p-3.5 rounded-md border border-stone-300 hover:border-rose-400 bg-white text-noir-800 transition-all hover:scale-110 active:scale-90 ${
                       heartAnimating ? 'animate-heart-pop' : ''
                     }`}
                     aria-label="Wishlist toggle"
