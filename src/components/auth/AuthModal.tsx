@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { 
   X, 
-  Sparkles, 
   Crown, 
   Mail, 
   Lock, 
@@ -36,7 +35,7 @@ export const AuthModal: React.FC = () => {
   const [phone, setPhone] = useState('08166612115');
   const [street, setStreet] = useState('Victoria Island');
   const [city, setCity] = useState('Lagos');
-  const [state, setState] = useState('Lagos State');
+  const [state] = useState('Lagos State');
 
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);

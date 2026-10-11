@@ -12,7 +12,6 @@ import {
   LogIn,
   LogOut,
   UserPlus,
-  Sparkles,
   Crown,
   Package,
   ChevronRight,
@@ -44,7 +43,7 @@ export const Navbar: React.FC<{ onToggleFilters?: () => void }> = ({ onToggleFil
   const [isScrolled, setIsScrolled] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
-  const userMenuTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const userMenuTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleUserMouseEnter = () => {
     if (userMenuTimeoutRef.current) {

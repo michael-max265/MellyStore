@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, ShieldCheck, FileText, CheckCircle2 } from 'lucide-react';
+import { X, ShieldCheck } from 'lucide-react';
 
 interface LegalModalProps {
   isOpen: boolean;
