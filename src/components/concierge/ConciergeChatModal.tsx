@@ -9,7 +9,8 @@ import {
   MapPin, 
   MessageSquare,
   CheckCircle2,
-  ArrowRight
+  ArrowRight,
+  Sparkles
 } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 
@@ -22,7 +23,17 @@ interface ChatMessage {
 }
 
 export const ConciergeChatModal: React.FC = () => {
-  const { isConciergeOpen, setIsConciergeOpen, products, setSelectedProduct, addToCart, showToast, userProfile } = useStore();
+  const { 
+    isConciergeOpen, 
+    setIsConciergeOpen, 
+    products, 
+    setSelectedProduct, 
+    addToCart, 
+    showToast, 
+    userProfile,
+    formatPrice,
+    setIsCartOpen
+  } = useStore();
   const [activeTab, setActiveTab] = useState<'advisory' | 'appointment' | 'contact'>('advisory');
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -39,6 +50,22 @@ export const ConciergeChatModal: React.FC = () => {
     notes: 'Looking for a bespoke luxury fitting session.'
   });
   const [bookingConfirmed, setBookingConfirmed] = useState(false);
+
+  const handleAddLookToBag = (productIds: string[]) => {
+    let count = 0;
+    productIds.forEach(id => {
+      const prod = products.find(p => p.id === id);
+      if (prod) {
+        addToCart(prod, prod.sizes[0] || 'M', prod.colors[0], 1);
+        count++;
+      }
+    });
+    if (count > 0) {
+      showToast('Curated Look Added', `${count} bespoke pieces added to your shopping bag.`);
+      setIsCartOpen(true);
+      setIsConciergeOpen(false);
+    }
+  };
 
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -102,8 +129,22 @@ export const ConciergeChatModal: React.FC = () => {
         replyText = "All MellyStore orders over $250 include complimentary international courier dispatch. Each piece is hand-wrapped in archival acid-free tissue paper within our signature champagne presentation box. We offer a 30-day Studio return privilege with complimentary door-to-door courier collection.";
         suggestedIds = [];
       } else {
-        replyText = "Understated architectural silhouette and natural noble fibers define our collections. I recommend exploring our signature Aurelia Silk Slip paired with the Italian tailored Sienna Blazer for refined day-to-evening versatility.";
-        suggestedIds = ['melly-01a', 'melly-02'];
+        // Dynamic search across catalog
+        const matching = products.filter(p => 
+          p.name.toLowerCase().includes(lower) || 
+          p.category.toLowerCase().includes(lower) || 
+          p.composition.toLowerCase().includes(lower) ||
+          p.description.toLowerCase().includes(lower) ||
+          p.details.some(d => d.toLowerCase().includes(lower))
+        ).slice(0, 3);
+
+        if (matching.length > 0) {
+          replyText = `Based on your enquiry, I have curated these bespoke silhouettes from our atelier that match your styling aesthetic:`;
+          suggestedIds = matching.map(m => m.id);
+        } else {
+          replyText = "Understated architectural silhouettes and noble natural fibers define our collections. I recommend exploring our signature Aurelia Silk Slip paired with the Italian tailored Sienna Blazer for refined day-to-evening versatility.";
+          suggestedIds = ['melly-01a', 'melly-02'];
+        }
       }
 
       setMessages(prev => [
@@ -217,38 +258,46 @@ export const ConciergeChatModal: React.FC = () => {
                   {/* Product recommendations inside message */}
                   {msg.suggestedProductIds && msg.suggestedProductIds.length > 0 && (
                     <div className="mt-2.5 space-y-2 w-full max-w-[90%]">
-                      <span className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold block">
-                        Curated Studio Pieces:
-                      </span>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] uppercase tracking-wider text-stone-500 font-semibold block">
+                          Curated Studio Pieces:
+                        </span>
+                        <span className="text-[10px] text-melly-800 font-medium">
+                          {products.filter(p => msg.suggestedProductIds?.includes(p.id)).length} Recommended
+                        </span>
+                      </div>
+
                       <div className="grid grid-cols-1 gap-2">
                         {products
                           .filter(p => msg.suggestedProductIds?.includes(p.id))
                           .map(prod => (
                             <div
                               key={prod.id}
-                              className="bg-white p-2.5 rounded-lg border border-stone-200 flex items-center justify-between gap-3 shadow-xs"
+                              className="bg-white p-2.5 rounded-xl border border-stone-200 flex items-center justify-between gap-3 shadow-xs hover:border-noir-950 transition-colors"
                             >
                               <div className="flex items-center space-x-2.5">
-                                <img src={prod.images[0]} alt={prod.name} className="w-10 h-12 object-cover rounded" />
+                                <img src={prod.images[0]} alt={prod.name} className="w-10 h-12 object-cover rounded-lg" />
                                 <div>
                                   <p className="font-serif text-[11px] font-medium text-noir-950 leading-tight">{prod.name}</p>
-                                  <p className="text-[10px] text-stone-500 font-semibold">${prod.price}</p>
+                                  <p className="text-[10px] text-melly-800 font-semibold">{formatPrice(prod.price)}</p>
                                 </div>
                               </div>
-                              <div className="flex items-center space-x-1">
+                              <div className="flex items-center space-x-1.5">
                                 <button
+                                  type="button"
                                   onClick={() => {
                                     setIsConciergeOpen(false);
                                     setSelectedProduct(prod);
                                   }}
-                                  className="p-1.5 border border-stone-200 hover:border-noir-900 rounded text-stone-600 hover:text-noir-950 transition-colors"
+                                  className="p-1.5 border border-stone-200 hover:border-noir-900 rounded-lg text-stone-600 hover:text-noir-950 transition-colors cursor-pointer"
                                   title="Inspect Silhouette"
                                 >
                                   <Eye className="w-3.5 h-3.5" />
                                 </button>
                                 <button
-                                  onClick={() => addToCart(prod, prod.sizes[0], prod.colors[0], 1)}
-                                  className="p-1.5 bg-noir-950 hover:bg-stone-800 text-white rounded transition-colors"
+                                  type="button"
+                                  onClick={() => addToCart(prod, prod.sizes[0] || 'M', prod.colors[0], 1)}
+                                  className="p-1.5 bg-noir-950 hover:bg-melly-900 text-white rounded-lg transition-colors cursor-pointer shadow-xs"
                                   title="Add to Bag"
                                 >
                                   <ShoppingBag className="w-3.5 h-3.5" />
@@ -257,6 +306,17 @@ export const ConciergeChatModal: React.FC = () => {
                             </div>
                           ))}
                       </div>
+
+                      {msg.suggestedProductIds.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleAddLookToBag(msg.suggestedProductIds!)}
+                          className="w-full mt-1.5 py-2 px-3 bg-noir-950 hover:bg-melly-900 text-white text-[10px] uppercase tracking-luxury font-medium rounded-xl flex items-center justify-center space-x-1.5 transition-all hover:scale-[1.01] active:scale-[0.99] cursor-pointer shadow-sm"
+                        >
+                          <Sparkles className="w-3 h-3 text-amber-300" />
+                          <span>Add Curated Capsule ({msg.suggestedProductIds.length} Silhouettes) to Bag</span>
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>

@@ -110,28 +110,26 @@ export const Navbar: React.FC<{ onToggleFilters?: () => void }> = ({ onToggleFil
         {/* ── Top Row: Search | Logo | Actions ── */}
         <div className="flex items-center justify-between h-16">
 
-          {/* Mobile: hamburger + filter */}
-          <div className="flex items-center space-x-3 lg:hidden">
+          {/* Mobile Left: Hamburger + Search */}
+          <div className="flex items-center space-x-1 sm:space-x-2 lg:hidden shrink-0">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 text-noir-800 hover:text-noir-950 focus:outline-none"
+              className="p-1.5 text-noir-800 hover:text-noir-950 focus:outline-none"
               aria-label="Toggle menu"
             >
-              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
-            {onToggleFilters && (
-              <button
-                onClick={onToggleFilters}
-                className="p-2 text-noir-800 hover:text-noir-950 focus:outline-none"
-                aria-label="Filter products"
-              >
-                <SlidersHorizontal className="w-5 h-5" />
-              </button>
-            )}
+            <button
+              onClick={() => setIsSearchOpen(!isSearchOpen)}
+              className="p-1.5 text-noir-800 hover:text-melly-600 transition-colors"
+              aria-label="Search"
+            >
+              <Search className="w-5 h-5 stroke-[1.75]" />
+            </button>
           </div>
 
-          {/* Desktop Left: Search */}
-          <div className="hidden lg:flex items-center w-56">
+          {/* Desktop Left: Search Input Box */}
+          <div className="hidden lg:flex items-center w-56 shrink-0">
             <div className="relative w-full">
               {isSearchOpen ? (
                 <div className="flex items-center bg-white border border-stone-300 rounded-full px-3 py-1.5 shadow-sm animate-fade-in w-full">
@@ -168,28 +166,19 @@ export const Navbar: React.FC<{ onToggleFilters?: () => void }> = ({ onToggleFil
           </div>
 
           {/* Center: Brand Logo */}
-          <div className="flex-1 text-center lg:flex-initial min-w-0 px-1">
-            <a href="#" className="inline-block group text-center focus:outline-none">
-              <span className="block font-serif text-xl sm:text-3xl tracking-[0.12em] sm:tracking-[0.16em] font-bold text-noir-950 uppercase group-hover:text-melly-700 transition-colors truncate">
+          <div className="flex-1 flex flex-col items-center justify-center min-w-0 px-2 text-center">
+            <a href="#" className="inline-block group text-center focus:outline-none max-w-full">
+              <span className="block font-serif text-base sm:text-2xl lg:text-3xl tracking-[0.12em] sm:tracking-[0.16em] font-bold text-noir-950 uppercase group-hover:text-melly-700 transition-colors whitespace-nowrap">
                 MELLY<span className="text-melly-600 font-medium">STORE</span>
               </span>
-              <span className="block text-[9px] sm:text-[11px] uppercase tracking-[0.2em] sm:tracking-[0.25em] text-stone-500 font-medium -mt-0.5">
+              <span className="block text-[8px] sm:text-[10px] lg:text-[11px] uppercase tracking-[0.2em] sm:tracking-[0.25em] text-stone-500 font-medium -mt-0.5 whitespace-nowrap">
                 LUXURY WOMENSWEAR
               </span>
             </a>
           </div>
 
-          {/* Right: Wishlist, Bag, Admin */}
-          <div className="flex items-center space-x-4 sm:space-x-5">
-
-            {/* Mobile search icon */}
-            <button
-              onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="p-1 text-noir-800 hover:text-melly-600 transition-colors lg:hidden"
-              aria-label="Search"
-            >
-              <Search className="w-5 h-5 stroke-[1.75]" />
-            </button>
+          {/* Right: User, Wishlist, Bag, Admin */}
+          <div className="flex items-center space-x-1.5 sm:space-x-4 shrink-0">
 
             {/* VIP Client Profile with Hover & Click Dropdown */}
             <div 

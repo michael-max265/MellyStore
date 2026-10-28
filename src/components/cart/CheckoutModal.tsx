@@ -16,7 +16,10 @@ import {
   AlertCircle,
   MapPin,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Mail,
+  Smartphone,
+  ExternalLink
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useStore } from '../../context/StoreContext';
@@ -83,12 +86,71 @@ export const CheckoutModal: React.FC = () => {
   // Payment Method: 'card' | 'bank_transfer' | 'apple_pay' | 'delivery'
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'bank_transfer' | 'apple_pay' | 'delivery'>('card');
   const [cardData, setCardData] = useState({
-    cardNumber: '•••• •••• •••• 4242',
+    cardNumber: '5399 2400 1234 4242',
     nameOnCard: '',
-    expiry: '09/28',
+    expiry: '12/28',
     cvc: '842'
   });
+  const [cardError, setCardError] = useState('');
   const [transferConfirmed, setTransferConfirmed] = useState(false);
+  const [copiedOrderRef, setCopiedOrderRef] = useState(false);
+  const [isReceiptEmailModalOpen, setIsReceiptEmailModalOpen] = useState(false);
+  const [isTransferVerifying, setIsTransferVerifying] = useState(false);
+
+  // Auto-detect card brand and badge
+  const getCardBrand = (cardNumber: string) => {
+    const clean = cardNumber.replace(/\D/g, '');
+    if (/^4/.test(clean)) return { name: 'Visa', badge: 'bg-blue-100 text-blue-800 border-blue-200' };
+    if (/^(5[1-5]|2[2-7])/.test(clean)) return { name: 'Mastercard', badge: 'bg-red-100 text-red-800 border-red-200' };
+    if (/^(506|650|507)/.test(clean)) return { name: 'Verve', badge: 'bg-emerald-100 text-emerald-800 border-emerald-200' };
+    if (/^3[47]/.test(clean)) return { name: 'Amex', badge: 'bg-indigo-100 text-indigo-800 border-indigo-200' };
+    return { name: 'Credit/Debit Card', badge: 'bg-stone-100 text-stone-700 border-stone-200' };
+  };
+
+  const handleCardNumberChange = (raw: string) => {
+    const clean = raw.replace(/\D/g, '').slice(0, 19);
+    const parts = clean.match(/.{1,4}/g);
+    setCardData(prev => ({ ...prev, cardNumber: parts ? parts.join(' ') : clean }));
+    setCardError('');
+  };
+
+  const handleExpiryChange = (raw: string) => {
+    let clean = raw.replace(/\D/g, '').slice(0, 4);
+    if (clean.length >= 3) {
+      clean = `${clean.slice(0, 2)}/${clean.slice(2)}`;
+    }
+    setCardData(prev => ({ ...prev, expiry: clean }));
+    setCardError('');
+  };
+
+  const applyTestCard = (type: 'mastercard' | 'visa' | 'verve') => {
+    if (type === 'mastercard') {
+      setCardData({
+        cardNumber: '5399 2400 1234 4242',
+        nameOnCard: userProfile?.fullName || 'Melly VIP Client',
+        expiry: '12/28',
+        cvc: '842'
+      });
+      showToast('Paystack Mastercard Loaded', 'Ready for instant one-click test authorization', 'info');
+    } else if (type === 'visa') {
+      setCardData({
+        cardNumber: '4084 1234 5678 9012',
+        nameOnCard: userProfile?.fullName || 'Melly VIP Client',
+        expiry: '09/29',
+        cvc: '321'
+      });
+      showToast('Visa Card Loaded', 'Ready for international test authorization', 'info');
+    } else {
+      setCardData({
+        cardNumber: '5061 0234 5678 9102',
+        nameOnCard: userProfile?.fullName || 'Melly VIP Client',
+        expiry: '08/27',
+        cvc: '654'
+      });
+      showToast('Verve Card Loaded', 'Ready for domestic Nigerian NGN authorization', 'info');
+    }
+    setCardError('');
+  };
 
   // Track modal open transitions
   const prevIsOpen = useRef(false);
@@ -288,7 +350,47 @@ export const CheckoutModal: React.FC = () => {
     setTimeout(() => setCopiedAccount(false), 2000);
   };
 
+  const handleCopyOrderRef = (refText: string) => {
+    navigator.clipboard.writeText(refText);
+    setCopiedOrderRef(true);
+    showToast('Reference Copied', `${refText} copied to clipboard!`, 'success');
+    setTimeout(() => setCopiedOrderRef(false), 2000);
+  };
+
+  const handleSimulateBankVerify = () => {
+    setIsTransferVerifying(true);
+    setTimeout(() => {
+      setIsTransferVerifying(false);
+      setTransferConfirmed(true);
+      showToast('NIBSS Bank Credit Detected', `GTBank incoming credit of ${formatPrice(orderTotal)} verified successfully.`, 'success');
+    }, 1800);
+  };
+
   const handleCompleteOrder = () => {
+    setCardError('');
+
+    // Card validation
+    if (paymentMethod === 'card') {
+      const cleanNum = cardData.cardNumber.replace(/\D/g, '');
+      if (cleanNum.length < 15) {
+        setCardError('Please enter a valid 16-digit card number or select a test card preset above.');
+        return;
+      }
+      if (!cardData.expiry || cardData.expiry.length < 4) {
+        setCardError('Please provide a valid card expiration date (MM/YY).');
+        return;
+      }
+      if (!cardData.cvc || cardData.cvc.length < 3) {
+        setCardError('Please enter the 3-digit CVV security code.');
+        return;
+      }
+    }
+
+    if (paymentMethod === 'bank_transfer' && !transferConfirmed) {
+      setCardError('Please check the confirmation box or click Verify Bank Transfer before placing your order.');
+      return;
+    }
+
     setIsProcessing(true);
 
     setTimeout(() => {
@@ -334,7 +436,7 @@ export const CheckoutModal: React.FC = () => {
       } catch {
         // Safe fallback
       }
-    }, 1200);
+    }, paymentMethod === 'apple_pay' ? 1600 : 1200);
   };
 
   const handleOpenInvoice = () => {
@@ -406,16 +508,40 @@ export const CheckoutModal: React.FC = () => {
               </div>
 
               {/* Order Details Card */}
-              <div className="bg-white p-6 rounded-xl border border-stone-200/90 text-left space-y-4 shadow-sm text-xs">
-                <div className="flex justify-between border-b border-stone-100 pb-3">
+              <div className="bg-white p-6 rounded-2xl border border-stone-200/90 text-left space-y-4 shadow-sm text-xs">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-stone-100 pb-3 gap-2">
                   <div>
                     <span className="text-stone-400 uppercase tracking-wider text-[10px] block">Order Reference</span>
-                    <span className="font-serif text-base font-semibold text-noir-950">{confirmedOrder.orderNumber}</span>
+                    <div className="flex items-center space-x-2">
+                      <span className="font-serif text-base font-semibold text-noir-950">{confirmedOrder.orderNumber}</span>
+                      <button
+                        onClick={() => handleCopyOrderRef(confirmedOrder.orderNumber)}
+                        className="p-1 rounded hover:bg-stone-100 text-stone-500 hover:text-noir-950 transition-colors"
+                        title="Copy Order Number"
+                      >
+                        {copiedOrderRef ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
                   </div>
-                  <div className="text-right">
+                  <div className="sm:text-right">
                     <span className="text-stone-400 uppercase tracking-wider text-[10px] block">Tracking Code</span>
-                    <span className="font-mono text-xs font-semibold text-melly-800">{confirmedOrder.trackingNumber}</span>
+                    <span className="font-mono text-xs font-semibold text-melly-800 bg-melly-50 px-2 py-0.5 rounded border border-melly-200">
+                      {confirmedOrder.trackingNumber}
+                    </span>
                   </div>
+                </div>
+
+                <div className="flex items-center justify-between py-1 px-3 bg-stone-50 rounded-xl text-[11px]">
+                  <span className="text-stone-600">Settlement Method:</span>
+                  <span className="font-semibold text-noir-900 capitalize">
+                    {confirmedOrder.paymentMethod === 'card' 
+                      ? 'Paystack Card (Authorized)' 
+                      : confirmedOrder.paymentMethod === 'bank_transfer'
+                      ? 'Direct Bank Transfer (GTBank Verified)'
+                      : confirmedOrder.paymentMethod === 'apple_pay'
+                      ? 'Apple Pay / Biometric'
+                      : 'Pay on Delivery'}
+                  </span>
                 </div>
 
                 <div>
@@ -442,11 +568,32 @@ export const CheckoutModal: React.FC = () => {
                 </div>
               </div>
 
+              {/* Email Receipt Notification & Preview trigger */}
+              <div className="bg-[#FAF4EE] border border-[#E6D4C3] rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-left">
+                <div className="flex items-start space-x-3">
+                  <div className="w-8 h-8 rounded-full bg-melly-800 text-white flex items-center justify-center shrink-0 mt-0.5">
+                    <Mail className="w-4 h-4 text-amber-200" />
+                  </div>
+                  <div>
+                    <h5 className="font-serif text-xs font-semibold text-noir-950">Digital Studio Email Receipt Dispatched</h5>
+                    <p className="text-[11px] text-stone-600">A digital receipt and certificate of authenticity have been sent to {confirmedOrder.customer.email}.</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsReceiptEmailModalOpen(true)}
+                  className="px-3.5 py-1.5 bg-white border border-stone-300 hover:border-noir-950 text-noir-950 rounded-xl text-xs font-medium shrink-0 transition-colors cursor-pointer flex items-center space-x-1.5 self-start sm:self-auto"
+                >
+                  <ExternalLink className="w-3.5 h-3.5 text-stone-600" />
+                  <span>Preview Email Receipt</span>
+                </button>
+              </div>
+
               {/* Actions */}
               <div className="flex flex-col sm:flex-row justify-center gap-3 pt-2">
                 <button
                   onClick={handleOpenInvoice}
-                  className="px-6 py-3 border border-stone-300 hover:border-noir-950 rounded-xl text-xs uppercase tracking-luxury font-medium text-noir-900 flex items-center justify-center space-x-2 transition-colors cursor-pointer bg-white"
+                  className="px-5 py-3 border border-stone-300 hover:border-noir-950 rounded-xl text-xs uppercase tracking-luxury font-medium text-noir-900 flex items-center justify-center space-x-2 transition-colors cursor-pointer bg-white"
                 >
                   <FileText className="w-4 h-4" />
                   <span>View Official Invoice</span>
@@ -456,13 +603,13 @@ export const CheckoutModal: React.FC = () => {
                     setIsCheckoutOpen(false);
                     setIsTrackerOpen(true);
                   }}
-                  className="px-6 py-3 border border-melly-600 hover:bg-melly-50 text-melly-900 rounded-xl text-xs uppercase tracking-luxury font-medium transition-colors cursor-pointer"
+                  className="px-5 py-3 border border-melly-600 hover:bg-melly-50 text-melly-900 rounded-xl text-xs uppercase tracking-luxury font-medium transition-colors cursor-pointer"
                 >
                   Track Studio Order
                 </button>
                 <button
                   onClick={() => setIsCheckoutOpen(false)}
-                  className="px-8 py-3 bg-noir-950 hover:bg-melly-900 text-white rounded-xl text-xs uppercase tracking-luxury font-medium transition-colors cursor-pointer shadow-md"
+                  className="px-6 py-3 bg-noir-950 hover:bg-melly-900 text-white rounded-xl text-xs uppercase tracking-luxury font-medium transition-colors cursor-pointer shadow-md"
                 >
                   Continue Shopping
                 </button>
@@ -792,65 +939,122 @@ export const CheckoutModal: React.FC = () => {
                             <div className="flex items-center space-x-2.5">
                               <CreditCard className="w-4 h-4 text-noir-900" />
                               <div>
-                                <span className="text-xs font-semibold text-noir-900 block">Debit / Credit Card (Paystack)</span>
-                                <span className="text-[10px] text-stone-500">Instant Nigerian & International card processing</span>
+                                <div className="flex items-center space-x-2">
+                                  <span className="text-xs font-semibold text-noir-900">Debit / Credit Card</span>
+                                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${getCardBrand(cardData.cardNumber).badge}`}>
+                                    {getCardBrand(cardData.cardNumber).name}
+                                  </span>
+                                </div>
+                                <span className="text-[10px] text-stone-500">Paystack 256-Bit SSL Encrypted Gateway</span>
                               </div>
                             </div>
                             <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                              Paystack Verified
+                              Instant Processing
                             </span>
                           </div>
 
                           {paymentMethod === 'card' && (
-                            <div className="mt-3 space-y-2.5 border-t border-stone-200 pt-3">
-                              <div className="flex items-center space-x-2 text-[10px] text-stone-500 pb-1">
-                                <span className="px-1.5 py-0.5 bg-stone-100 rounded font-bold text-stone-700">VERVE</span>
-                                <span className="px-1.5 py-0.5 bg-stone-100 rounded font-bold text-stone-700">MASTERCARD</span>
-                                <span className="px-1.5 py-0.5 bg-stone-100 rounded font-bold text-stone-700">VISA</span>
-                                <span className="text-emerald-700 font-medium">✓ Zero Processing Fees</span>
+                            <div className="mt-3 space-y-3 border-t border-stone-200 pt-3">
+                              
+                              {/* 1-Click Test Card Sandbox Helper */}
+                              <div className="bg-stone-100/80 p-2.5 rounded-xl space-y-1.5 border border-stone-200">
+                                <span className="text-[10px] uppercase tracking-wider font-semibold text-stone-600 block">
+                                  One-Click Test Card Presets (Sandbox):
+                                </span>
+                                <div className="flex flex-wrap gap-1.5">
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      applyTestCard('mastercard');
+                                    }}
+                                    className="px-2 py-1 bg-white hover:bg-stone-50 border border-stone-300 rounded text-[10px] font-medium text-stone-800 transition-colors cursor-pointer flex items-center space-x-1"
+                                  >
+                                    <span>⚡ Mastercard</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      applyTestCard('visa');
+                                    }}
+                                    className="px-2 py-1 bg-white hover:bg-stone-50 border border-stone-300 rounded text-[10px] font-medium text-stone-800 transition-colors cursor-pointer flex items-center space-x-1"
+                                  >
+                                    <span>⚡ Visa Global</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      applyTestCard('verve');
+                                    }}
+                                    className="px-2 py-1 bg-white hover:bg-stone-50 border border-stone-300 rounded text-[10px] font-medium text-stone-800 transition-colors cursor-pointer flex items-center space-x-1"
+                                  >
+                                    <span>⚡ Verve (NGN)</span>
+                                  </button>
+                                </div>
                               </div>
+
                               <div>
-                                <label className="block text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-1">Card Number</label>
-                                <input
-                                  type="text"
-                                  value={cardData.cardNumber}
-                                  onChange={(e) => setCardData({ ...cardData, cardNumber: e.target.value })}
-                                  placeholder="5399 •••• •••• ••••"
-                                  className="w-full text-xs p-2.5 bg-white border border-stone-300 rounded font-mono"
-                                />
+                                <label className="block text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-1">
+                                  Card Number
+                                </label>
+                                <div className="relative">
+                                  <input
+                                    type="text"
+                                    value={cardData.cardNumber}
+                                    onChange={(e) => handleCardNumberChange(e.target.value)}
+                                    placeholder="5399 0000 0000 0000"
+                                    maxLength={19}
+                                    className="w-full text-xs p-2.5 bg-white border border-stone-300 rounded-lg font-mono focus:border-noir-950 focus:outline-none"
+                                  />
+                                  <span className="absolute right-2.5 top-2.5 text-[10px] font-bold text-stone-400">
+                                    {getCardBrand(cardData.cardNumber).name}
+                                  </span>
+                                </div>
                               </div>
+
                               <div className="grid grid-cols-2 gap-2">
                                 <div>
                                   <label className="block text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-1">Expiration</label>
                                   <input
                                     type="text"
                                     value={cardData.expiry}
-                                    onChange={(e) => setCardData({ ...cardData, expiry: e.target.value })}
+                                    onChange={(e) => handleExpiryChange(e.target.value)}
                                     placeholder="MM / YY"
-                                    className="w-full text-xs p-2.5 bg-white border border-stone-300 rounded"
+                                    maxLength={5}
+                                    className="w-full text-xs p-2.5 bg-white border border-stone-300 rounded-lg focus:border-noir-950 focus:outline-none"
                                   />
                                 </div>
                                 <div>
-                                  <label className="block text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-1">CVV</label>
+                                  <label className="block text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-1">CVV / CVC</label>
                                   <input
-                                    type="text"
+                                    type="password"
                                     value={cardData.cvc}
-                                    onChange={(e) => setCardData({ ...cardData, cvc: e.target.value })}
-                                    placeholder="CVV"
-                                    className="w-full text-xs p-2.5 bg-white border border-stone-300 rounded"
+                                    onChange={(e) => setCardData({ ...cardData, cvc: e.target.value.replace(/\D/g, '').slice(0, 4) })}
+                                    placeholder="123"
+                                    maxLength={4}
+                                    className="w-full text-xs p-2.5 bg-white border border-stone-300 rounded-lg focus:border-noir-950 focus:outline-none"
                                   />
                                 </div>
                               </div>
+
                               <div>
                                 <label className="block text-[10px] uppercase tracking-wider text-stone-500 font-semibold mb-1">Cardholder Name</label>
                                 <input
                                   type="text"
                                   value={cardData.nameOnCard}
                                   onChange={(e) => setCardData({ ...cardData, nameOnCard: e.target.value })}
-                                  placeholder="Name as printed on card"
-                                  className="w-full text-xs p-2.5 bg-white border border-stone-300 rounded"
+                                  placeholder="Full name as printed on card"
+                                  className="w-full text-xs p-2.5 bg-white border border-stone-300 rounded-lg focus:border-noir-950 focus:outline-none"
                                 />
                               </div>
+
+                              {cardError && (
+                                <p className="text-[11px] text-rose-600 font-medium bg-rose-50 border border-rose-200 p-2 rounded-lg">
+                                  {cardError}
+                                </p>
+                              )}
                             </div>
                           )}
                         </label>
@@ -867,7 +1071,7 @@ export const CheckoutModal: React.FC = () => {
                               <Building2 className="w-4 h-4 text-amber-700" />
                               <div>
                                 <span className="text-xs font-semibold text-noir-900 block">Direct Bank Transfer</span>
-                                <span className="text-[10px] text-stone-500">Instant Nigerian Bank Deposit (GTBank)</span>
+                                <span className="text-[10px] text-stone-500">Instant Nigerian Bank Deposit (GTBank / NIBSS)</span>
                               </div>
                             </div>
                             <span className="text-[10px] font-bold text-amber-800 bg-amber-50 px-2.5 py-0.5 rounded border border-amber-200">
@@ -888,7 +1092,10 @@ export const CheckoutModal: React.FC = () => {
                                     <span className="font-mono font-bold text-sm text-noir-950">0816661211</span>
                                     <button
                                       type="button"
-                                      onClick={handleCopyBank}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleCopyBank();
+                                      }}
                                       className="p-1 rounded bg-white hover:bg-stone-100 text-stone-600 border border-stone-200 cursor-pointer"
                                       title="Copy Account Number"
                                     >
@@ -901,20 +1108,33 @@ export const CheckoutModal: React.FC = () => {
                                   <span className="font-semibold text-noir-950">MELLYSTORE BOUTIQUE LTD</span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                  <span className="text-stone-500">Amount Due:</span>
+                                  <span className="text-stone-500">Exact Total Due:</span>
                                   <span className="font-bold text-melly-800 text-sm">{formatPrice(orderTotal)}</span>
                                 </div>
                               </div>
 
-                              <label className="flex items-center space-x-2 text-xs text-stone-700 cursor-pointer pt-1">
-                                <input
-                                  type="checkbox"
-                                  checked={transferConfirmed}
-                                  onChange={(e) => setTransferConfirmed(e.target.checked)}
-                                  className="accent-noir-950 rounded cursor-pointer"
-                                />
-                                <span>I have sent the bank transfer payment</span>
-                              </label>
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1">
+                                <label className="flex items-center space-x-2 text-xs text-stone-700 cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={transferConfirmed}
+                                    onChange={(e) => setTransferConfirmed(e.target.checked)}
+                                    className="accent-noir-950 rounded cursor-pointer"
+                                  />
+                                  <span>I have initiated the bank transfer payment</span>
+                                </label>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleSimulateBankVerify();
+                                  }}
+                                  disabled={isTransferVerifying}
+                                  className="text-[10px] font-semibold uppercase tracking-wider text-melly-800 bg-melly-50 hover:bg-melly-100 border border-melly-200 px-2.5 py-1 rounded-lg transition-colors cursor-pointer self-start sm:self-auto"
+                                >
+                                  {isTransferVerifying ? 'Checking NIBSS...' : '⚡ Verify Credit Alert'}
+                                </button>
+                              </div>
                             </div>
                           )}
                         </label>
@@ -927,9 +1147,28 @@ export const CheckoutModal: React.FC = () => {
                           }`}
                         >
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-semibold text-noir-900">Apple Pay / Google Pay</span>
-                            <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-medium">1-Click</span>
+                            <div className="flex items-center space-x-2.5">
+                              <Smartphone className="w-4 h-4 text-noir-900" />
+                              <div>
+                                <span className="text-xs font-semibold text-noir-900 block">Apple Pay & Google Pay</span>
+                                <span className="text-[10px] text-stone-500">Instant biometric authentication via device keychain</span>
+                              </div>
+                            </div>
+                            <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded font-medium border border-emerald-200">
+                              Touch / Face ID
+                            </span>
                           </div>
+                          {paymentMethod === 'apple_pay' && (
+                            <div className="mt-3 pt-3 border-t border-stone-200 text-xs text-stone-600 space-y-1">
+                              <p className="flex items-center space-x-1.5 text-stone-800 font-medium">
+                                <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                                <span>Fast Pass Checkout Ready</span>
+                              </p>
+                              <p className="text-[11px] text-stone-500">
+                                Click authorize below to complete payment instantly using your saved payment card via Apple Pay.
+                              </p>
+                            </div>
+                          )}
                         </label>
 
                         {/* Option 4: Pay on Delivery */}
@@ -1094,6 +1333,135 @@ export const CheckoutModal: React.FC = () => {
         </div>
 
       </div>
+
+      {/* ─────────────────────────────────────────────────────────────
+          DIGITAL EMAIL RECEIPT PREVIEW MODAL
+         ───────────────────────────────────────────────────────────── */}
+      {isReceiptEmailModalOpen && confirmedOrder && (
+        <div className="fixed inset-0 z-60 bg-black/75 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-fade-in">
+          <div 
+            className="fixed inset-0" 
+            onClick={() => setIsReceiptEmailModalOpen(false)} 
+          />
+          <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden z-10 border border-stone-200 flex flex-col max-h-[92vh]">
+            {/* Email Header Bar */}
+            <div className="bg-stone-900 text-white p-4 sm:p-5 flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Mail className="w-4 h-4 text-amber-300" />
+                <span className="text-xs uppercase tracking-luxury font-medium">Boutique Dispatch Email Notification</span>
+              </div>
+              <button
+                onClick={() => setIsReceiptEmailModalOpen(false)}
+                className="p-1 rounded-full hover:bg-stone-800 text-stone-400 hover:text-white transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Email Metadata */}
+            <div className="p-4 bg-stone-50 border-b border-stone-200 text-xs space-y-1 font-mono">
+              <div className="flex text-stone-600">
+                <span className="w-16 font-semibold text-stone-900">From:</span>
+                <span>MellyStore Atelier &lt;orders@mellystore.com&gt;</span>
+              </div>
+              <div className="flex text-stone-600">
+                <span className="w-16 font-semibold text-stone-900">To:</span>
+                <span>{confirmedOrder.customer.fullName} &lt;{confirmedOrder.customer.email}&gt;</span>
+              </div>
+              <div className="flex text-stone-600">
+                <span className="w-16 font-semibold text-stone-900">Subject:</span>
+                <span className="font-semibold text-noir-950">Acquisition Confirmed: {confirmedOrder.orderNumber} (Tracking: {confirmedOrder.trackingNumber})</span>
+              </div>
+            </div>
+
+            {/* Email Body */}
+            <div className="p-6 sm:p-8 overflow-y-auto space-y-6 text-noir-950">
+              <div className="text-center pb-4 border-b border-stone-100">
+                <h2 className="font-serif text-2xl font-normal tracking-wide">MELLY<span className="text-melly-600 font-light">STORE</span></h2>
+                <p className="text-[10px] uppercase tracking-[0.25em] text-stone-500 mt-1">Private Client Order Receipt</p>
+              </div>
+
+              <div className="space-y-2 text-xs sm:text-sm text-stone-700 leading-relaxed">
+                <p>Dear {confirmedOrder.customer.fullName},</p>
+                <p>
+                  Thank you for your acquisition. Our master tailors and studio logistics team in Victoria Island have received your order. Each silhouette is being hand-pressed, verified against our quality standard, and enclosed in our signature cedar preservation box.
+                </p>
+              </div>
+
+              {/* Order Metadata Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 bg-[#FAF8F5] rounded-2xl border border-stone-200 text-xs">
+                <div>
+                  <span className="text-stone-400 uppercase tracking-wider text-[10px] block">Order Number</span>
+                  <span className="font-serif font-bold text-noir-950">{confirmedOrder.orderNumber}</span>
+                </div>
+                <div>
+                  <span className="text-stone-400 uppercase tracking-wider text-[10px] block">Delivery Location</span>
+                  <span className="font-medium text-noir-950">{confirmedOrder.customer.city}, {confirmedOrder.customer.country}</span>
+                </div>
+                <div className="col-span-2 sm:col-span-1">
+                  <span className="text-stone-400 uppercase tracking-wider text-[10px] block">Estimated Arrival</span>
+                  <span className="font-medium text-emerald-800">1-2 Business Days</span>
+                </div>
+              </div>
+
+              {/* Line Items */}
+              <div className="space-y-3">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-stone-500">Order Items</h4>
+                <div className="space-y-3 border-t border-stone-100 pt-3">
+                  {confirmedOrder.items.map((item, idx) => (
+                    <div key={idx} className="flex justify-between items-center text-xs">
+                      <div className="flex items-center space-x-3">
+                        <img src={item.image} alt={item.name} className="w-10 h-12 object-cover rounded-lg" />
+                        <div>
+                          <p className="font-serif font-medium text-noir-950">{item.name}</p>
+                          <p className="text-[10px] text-stone-500">Size {item.size} • Color {item.color} • Qty {item.quantity}</p>
+                        </div>
+                      </div>
+                      <span className="font-semibold text-noir-950">{formatPrice(item.price * item.quantity)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Summary */}
+              <div className="border-t border-stone-200 pt-3 space-y-1.5 text-xs">
+                <div className="flex justify-between text-stone-600">
+                  <span>Subtotal</span>
+                  <span>{formatPrice(confirmedOrder.subtotal)}</span>
+                </div>
+                {confirmedOrder.discount > 0 && (
+                  <div className="flex justify-between text-emerald-700">
+                    <span>Privilege Courtesy ({confirmedOrder.promoCodeApplied})</span>
+                    <span>-{formatPrice(confirmedOrder.discount)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-stone-600">
+                  <span>White-Glove Express Shipping</span>
+                  <span className="text-emerald-700 font-medium">Complimentary</span>
+                </div>
+                <div className="flex justify-between font-bold text-sm text-noir-950 border-t border-stone-200 pt-2">
+                  <span>Total Paid</span>
+                  <span>{formatPrice(confirmedOrder.total)}</span>
+                </div>
+              </div>
+
+              <div className="text-center pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsReceiptEmailModalOpen(false);
+                    showToast('Receipt Sent', `A fresh copy was re-sent to ${confirmedOrder.customer.email}`, 'success');
+                  }}
+                  className="px-6 py-2.5 bg-noir-950 hover:bg-melly-900 text-white rounded-xl text-xs uppercase tracking-luxury font-medium transition-colors cursor-pointer"
+                >
+                  Confirm & Re-Send Copy
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
     </div>
   );
 };
