@@ -126,6 +126,16 @@ export const Navbar: React.FC<{ onToggleFilters?: () => void }> = ({ onToggleFil
             >
               <Search className="w-5 h-5 stroke-[1.75]" />
             </button>
+            {onToggleFilters && (
+              <button
+                onClick={onToggleFilters}
+                className="p-1.5 text-noir-800 hover:text-melly-600 transition-colors"
+                aria-label="Filters"
+                title="Filters"
+              >
+                <SlidersHorizontal className="w-5 h-5 stroke-[1.75]" />
+              </button>
+            )}
           </div>
 
           {/* Desktop Left: Search Input Box */}
